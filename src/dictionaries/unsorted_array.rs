@@ -1,21 +1,21 @@
 use ::dictionaries::Dictionary;
 
-struct Entry<K: Eq, V> {
+struct Entry<K: Eq, V: Copy> {
     key: K,
     value: V,
 }
 
-pub struct UnsortedArrayDictionary<K: Eq, V> {
+pub struct UnsortedArrayDictionary<K: Eq, V: Copy> {
     entries: Vec<Entry<K, V>>,
 }
 
-impl<K: Eq, V> UnsortedArrayDictionary<K, V> {
+impl<K: Eq, V: Copy> UnsortedArrayDictionary<K, V> {
     fn new() -> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
 }
 
-impl<K: Eq, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
+impl<K: Eq, V: Copy> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
     fn search(&self, key: K) -> Option<V> {
         for entry in &self.entries {
             if entry.key == key {
