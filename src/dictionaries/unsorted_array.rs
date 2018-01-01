@@ -77,4 +77,18 @@ mod tests {
         dict.delete(1);
         assert_eq!(None, dict.search(1));
     }
+
+    #[test]
+    fn it_returns_min_and_max_elements() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        assert_eq!(None, dict.min());
+        assert_eq!(None, dict.max());
+        dict.insert(2, 200);
+        assert_eq!(Some(200), dict.min());
+        assert_eq!(Some(200), dict.max());
+        dict.insert(1, 100);
+        dict.insert(3, 300);
+        assert_eq!(Some(100), dict.min());
+        assert_eq!(Some(300), dict.max());
+    }
 }
