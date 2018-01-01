@@ -1,6 +1,6 @@
 mod unsorted_array;
 
-pub trait Dictionary<K, V> {
+pub trait Dictionary<K: Eq, V> {
     fn search(&self, key: K) -> Option<V>;
     fn insert(&mut self, key: K, value: V);
     fn delete(&mut self, key: K);
