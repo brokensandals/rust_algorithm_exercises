@@ -7,7 +7,7 @@ pub struct Entry<K: Eq + Ord, V> {
 
 pub trait Dictionary<K: Eq + Ord, V> {
     fn search(&self, key: K) -> Option<&Entry<K, V>>;
-    fn insert(&mut self, entry: &Entry<K, V>);
+    fn insert(&mut self, entry: Entry<K, V>);
     fn delete(&mut self, entry: &Entry<K, V>);
     fn max(&self) -> Option<&Entry<K, V>>;
     fn min(&self) -> Option<&Entry<K, V>>;

@@ -13,11 +13,11 @@ impl<K: Eq + Ord, V> UnsortedArrayDictionary<K, V> {
 
 impl<K: Eq + Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
     fn search(&self, key: K) -> Option<&Entry<K, V>> {
-        None
+        self.entries.iter().find(|&entry| entry.key == key)
     }
 
-    fn insert(&mut self, entry: &Entry<K, V>) {
-        
+    fn insert(&mut self, entry: Entry<K, V>) {
+        self.entries.push(entry);
     }
 
     fn delete(&mut self, entry: &Entry<K, V>) {
@@ -52,9 +52,9 @@ mod tests {
     #[test]
     fn it_performs_insertions_and_searches() {
         let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        dict.insert(&Entry { key: 2, value: 200 });
-        dict.insert(&Entry { key: 1, value: 100 });
-        dict.insert(&Entry { key: 3, value: 300 });
+        dict.insert(Entry { key: 2, value: 200 });
+        dict.insert(Entry { key: 1, value: 100 });
+        dict.insert(Entry { key: 3, value: 300 });
         assert_eq!(Some((1, 100)), dict.search(1).map(tuple));
         assert_eq!(Some((2, 200)), dict.search(2).map(tuple));
         assert_eq!(Some((3, 300)), dict.search(3).map(tuple));
