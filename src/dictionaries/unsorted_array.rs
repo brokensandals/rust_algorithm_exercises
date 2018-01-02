@@ -1,5 +1,10 @@
 use ::dictionaries::Dictionary;
-use ::dictionaries::Entry;
+use ::dictionaries::Cursor;
+
+struct Entry<K, V> {
+    key: K,
+    value: V,
+}
 
 pub struct UnsortedArrayDictionary<K: Eq + Ord, V> {
     entries: Vec<Entry<K, V>>,
@@ -12,32 +17,50 @@ impl<K: Eq + Ord, V> UnsortedArrayDictionary<K, V> {
 }
 
 impl<K: Eq + Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
-    fn search(&self, key: K) -> Option<&Entry<K, V>> {
-        self.entries.iter().find(|&entry| entry.key == key)
+    type C = InternalCursor<K, V>;
+
+    fn search(&self, key: K) -> InternalCursor<K, V> {
+        InternalCursor {dict: self, index: None}
     }
 
-    fn insert(&mut self, entry: Entry<K, V>) {
-        self.entries.push(entry);
+    fn max(&self) -> InternalCursor<K, V> {
+        InternalCursor {dict: self, index: None}
     }
 
-    fn delete(&mut self, entry: &Entry<K, V>) {
+    fn min(&self) -> InternalCursor<K, V> {
+        InternalCursor {dict: self, index: None}
+    }
+}
+
+struct InternalCursor<K, V> {
+    dict: &UnsortedArrayDictionary,
+    key: &K,
+    index: Option<usize>,
+}
+
+impl<K, V> Cursor<K, V> for InternalCursor<K, V> {
+    fn delete(&self) {
         
     }
 
-    fn max(&self) -> Option<&Entry<K, V>> {
+    fn predecessor(self) -> Self {
+        InternalCursor {dict: self.dict, index: None}
+    }
+
+    fn successor(self) -> Self {
+        InternalCursor {dict: self.dict, index: None}
+    }
+
+    fn key(&self) -> &K {
+        self.key
+    }
+
+    fn value(&self) -> Option<&V> {
         None
     }
 
-    fn min(&self) -> Option<&Entry<K, V>> {
-        None
-    }
+    fn set_value(&self, value: V) {
 
-    fn predecessor(&self, entry: &Entry<K, V>) -> Option<&Entry<K, V>> {
-        None
-    }
-
-    fn successor(&self, entry: &Entry<K, V>) -> Option<&Entry<K, V>> {
-        None
     }
 }
 
@@ -45,21 +68,21 @@ impl<K: Eq + Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
 mod tests {
     use super::*;
 
-    fn tuple<K: Eq + Ord + Copy, V: Copy>(entry: &Entry<K, V>) -> (K, V) {
-        (entry.key, entry.value)
-    }
+    // fn tuple<K: Eq + Ord + Copy, V: Copy>(entry: &Entry<K, V>) -> (K, V) {
+    //     (entry.key, entry.value)
+    // }
 
-    #[test]
-    fn it_performs_insertions_and_searches() {
-        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        dict.insert(Entry { key: 2, value: 200 });
-        dict.insert(Entry { key: 1, value: 100 });
-        dict.insert(Entry { key: 3, value: 300 });
-        assert_eq!(Some((1, 100)), dict.search(1).map(tuple));
-        assert_eq!(Some((2, 200)), dict.search(2).map(tuple));
-        assert_eq!(Some((3, 300)), dict.search(3).map(tuple));
-        assert_eq!(None, dict.search(4).map(tuple));
-    }
+    // #[test]
+    // fn it_performs_insertions_and_searches() {
+    //     let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+    //     dict.insert(Entry { key: 2, value: 200 });
+    //     dict.insert(Entry { key: 1, value: 100 });
+    //     dict.insert(Entry { key: 3, value: 300 });
+    //     assert_eq!(Some((1, 100)), dict.search(1).map(tuple));
+    //     assert_eq!(Some((2, 200)), dict.search(2).map(tuple));
+    //     assert_eq!(Some((3, 300)), dict.search(3).map(tuple));
+    //     assert_eq!(None, dict.search(4).map(tuple));
+    // }
 
     // #[test]
     // fn it_performs_deletions() {
