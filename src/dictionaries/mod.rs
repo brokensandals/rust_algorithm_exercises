@@ -1,11 +1,16 @@
 mod unsorted_array;
 
-pub trait Dictionary<K: Copy + Eq + Ord, V: Copy> {
-    fn search(&self, key: K) -> Option<V>;
-    fn insert(&mut self, key: K, value: V);
-    fn delete(&mut self, key: K);
-    fn max(&self) -> Option<K>;
-    fn min(&self) -> Option<K>;
-    fn predecessor(&self, key: K) -> Option<K>;
-    fn successor(&self, key: K) -> Option<K>;
+pub struct Entry<K: Eq + Ord, V> {
+    key: K,
+    value: V,
+}
+
+pub trait Dictionary<K: Eq + Ord, V> {
+    fn search(&self, key: K) -> Option<&Entry<K, V>>;
+    fn insert(&mut self, entry: &Entry<K, V>);
+    fn delete(&mut self, entry: &Entry<K, V>);
+    fn max(&self) -> Option<&Entry<K, V>>;
+    fn min(&self) -> Option<&Entry<K, V>>;
+    fn predecessor(&self, entry: &Entry<K, V>) -> Option<&Entry<K, V>>;
+    fn successor(&self, entry: &Entry<K, V>) -> Option<&Entry<K, V>>;
 }
