@@ -45,11 +45,15 @@ impl<K: Copy + Eq + Ord, V: Copy> Dictionary<K, V> for UnsortedArrayDictionary<K
     }
 
     fn predecessor(&self, key: K) -> Option<K> {
-        None
+        self.entries.iter().filter(|&entry| entry.key < key)
+            .max_by_key(|&entry| entry.key)
+            .map(|entry| entry.key)
     }
 
     fn successor(&self, key: K) -> Option<K> {
-        None
+        self.entries.iter().filter(|&entry| entry.key > key)
+            .min_by_key(|&entry| entry.key)
+            .map(|entry| entry.key)
     }
 }
 
@@ -90,5 +94,29 @@ mod tests {
         dict.insert(3, 300);
         assert_eq!(Some(1), dict.min());
         assert_eq!(Some(3), dict.max());
+    }
+
+    #[test]
+    fn it_returns_predecessors() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        assert_eq!(None, dict.predecessor(2));
+        dict.insert(2, 200);
+        dict.insert(1, 100);
+        dict.insert(3, 300);
+        assert_eq!(None, dict.predecessor(1));
+        assert_eq!(Some(1), dict.predecessor(2));
+        assert_eq!(Some(2), dict.predecessor(3));
+    }
+
+    #[test]
+    fn it_returns_successors() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        assert_eq!(None, dict.successor(2));
+        dict.insert(2, 200);
+        dict.insert(1, 100);
+        dict.insert(3, 300);
+        assert_eq!(Some(2), dict.successor(1));
+        assert_eq!(Some(3), dict.successor(2));
+        assert_eq!(None, dict.successor(3));
     }
 }
