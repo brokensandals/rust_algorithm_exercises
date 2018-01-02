@@ -1,21 +1,21 @@
 use ::dictionaries::Dictionary;
 
-struct Entry<K: Eq, V: Copy> {
+struct Entry<K: Copy + Eq + Ord, V: Copy> {
     key: K,
     value: V,
 }
 
-pub struct UnsortedArrayDictionary<K: Eq, V: Copy> {
+pub struct UnsortedArrayDictionary<K: Copy + Eq + Ord, V: Copy> {
     entries: Vec<Entry<K, V>>,
 }
 
-impl<K: Eq, V: Copy> UnsortedArrayDictionary<K, V> {
+impl<K: Copy + Eq + Ord, V: Copy> UnsortedArrayDictionary<K, V> {
     fn new() -> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
 }
 
-impl<K: Eq, V: Copy> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
+impl<K: Copy + Eq + Ord, V: Copy> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
     fn search(&self, key: K) -> Option<V> {
         for entry in &self.entries {
             if entry.key == key {
@@ -37,11 +37,11 @@ impl<K: Eq, V: Copy> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
     }
 
     fn max(&self) -> Option<K> {
-        None
+        self.entries.iter().max_by_key(|&entry| entry.key).map(|entry| entry.key)
     }
 
     fn min(&self) -> Option<K> {
-        None
+        self.entries.iter().min_by_key(|&entry| entry.key).map(|entry| entry.key)
     }
 
     fn predecessor(&self, key: K) -> Option<K> {
@@ -84,11 +84,11 @@ mod tests {
         assert_eq!(None, dict.min());
         assert_eq!(None, dict.max());
         dict.insert(2, 200);
-        assert_eq!(Some(200), dict.min());
-        assert_eq!(Some(200), dict.max());
+        assert_eq!(Some(2), dict.min());
+        assert_eq!(Some(2), dict.max());
         dict.insert(1, 100);
         dict.insert(3, 300);
-        assert_eq!(Some(100), dict.min());
-        assert_eq!(Some(300), dict.max());
+        assert_eq!(Some(1), dict.min());
+        assert_eq!(Some(3), dict.max());
     }
 }
