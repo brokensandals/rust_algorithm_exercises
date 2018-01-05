@@ -99,6 +99,18 @@ impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<
 mod tests {
     use super::*;
 
+    #[test]
+    fn it_performs_insertions_and_searches() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        dict.search(2).set_value(200);
+        dict.search(1).set_value(100);
+        dict.search(3).set_value(300);
+        assert_eq!(Some(100), dict.search(1).value().cloned());
+        assert_eq!(Some(200), dict.search(2).value().cloned());
+        assert_eq!(Some(300), dict.search(3).value().cloned());
+        assert_eq!(None, dict.search(4).value());
+    }
+
     // fn tuple<K: Eq + Ord + Copy, V: Copy>(entry: &Entry<K, V>) -> (K, V) {
     //     (entry.key, entry.value)
     // }
