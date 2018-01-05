@@ -25,8 +25,6 @@ impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
 }
 
 impl<K: Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
-    type Cursor = InternalCursor<K, V>;
-
     fn search(&self, key: K) -> InternalCursor<K, V> {
         self.cursor(key, None) // TODO
     }
