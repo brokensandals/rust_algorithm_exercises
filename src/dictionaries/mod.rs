@@ -6,7 +6,7 @@ pub trait Cursor<'d, K: Ord + 'd, V: 'd> where Self: Sized {
     fn delete(&self);
     fn predecessor(self) -> Option<Self>;
     fn successor(self) -> Option<Self>;
-    fn key(&self) -> K;
+    fn key(&self) -> &K;
     fn value(&self) -> Option<&V>;
     fn set_value(&mut self, value: V);
 }

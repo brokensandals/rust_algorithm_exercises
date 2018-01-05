@@ -1,5 +1,7 @@
 use ::dictionaries::Dictionary;
 use ::dictionaries::Cursor;
+use self::CursorPosition::*;
+use std::mem;
 
 struct Entry<K, V> {
     key: K,
@@ -14,14 +16,6 @@ impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
     fn new() -> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
-
-    fn cursor<'d>(&'d mut self, key: K, index: Option<usize>) -> UnsortedArrayDictionaryCursor<'d, K, V> {
-        UnsortedArrayDictionaryCursor {
-            dictionary: self,
-            key: key,
-            index: index,
-        }
-    }
 }
 
 impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K, V> {
@@ -29,8 +23,14 @@ impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K,
 
     fn search(&'d mut self, key: K) -> Self::Cursor {
         match self.entries.iter().position(|ref e| e.key == key) {
-            None => self.cursor(key, None),
-            Some(position) => self.cursor(key, Some(position)),
+            None => UnsortedArrayDictionaryCursor {
+                dictionary: self,
+                position: MissingElement(key),
+            },
+            Some(position) => UnsortedArrayDictionaryCursor {
+                dictionary: self,
+                position: PresentElement(position),
+            },
         }
     }
 
@@ -43,10 +43,14 @@ impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K,
     }
 }
 
+enum CursorPosition<K> {
+    MissingElement(K),
+    PresentElement(usize),
+}
+
 pub struct UnsortedArrayDictionaryCursor<'d, K: Ord + 'd, V: 'd> {
     dictionary: &'d mut UnsortedArrayDictionary<K, V>,
-    key: K,
-    index: Option<usize>,
+    position: CursorPosition<K>,
 }
 
 impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<'d, K, V> {
@@ -62,24 +66,29 @@ impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<
         None // TODO
     }
 
-    fn key(&self) -> K {
-        self.key
+    fn key(&self) -> &K {
+        match &self.position {
+            &MissingElement(ref key) => key,
+            &PresentElement(index) => &self.dictionary.entries[index].key,
+        }
     }
 
     fn value(&self) -> Option<&V> {
-        match self.index {
-            None => None,
-            Some(index) => Some(&self.dictionary.entries[index].value),
+        match &self.position {
+            &MissingElement(_) => None,
+            &PresentElement(index) => Some(&self.dictionary.entries[index].value),
         }
     }
 
     fn set_value(&mut self, value: V) {
-        match self.index {
-            None => {
-                self.dictionary.entries.push(Entry { key: self.key, value: value });
-                self.index = Some(self.dictionary.entries.len() - 1);
+        match &self.position {
+            &MissingElement(_) => {
+                match mem::replace(&mut self.position, PresentElement(self.dictionary.entries.len())) {
+                    MissingElement(key) => { self.dictionary.entries.push(Entry { key: key, value: value }); },
+                    PresentElement(_) => unreachable!(),
+                };
             },
-            Some(index) => {
+            &PresentElement(index) => {
                 self.dictionary.entries[index].value = value;
             },
         };
