@@ -54,8 +54,14 @@ pub struct UnsortedArrayDictionaryCursor<'d, K: Ord + 'd, V: 'd> {
 }
 
 impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<'d, K, V> {
-    fn delete(&self) {
-        // TODO
+    fn delete(&mut self) {
+        match &self.position {
+            &MissingElement(_) => { },
+            &PresentElement(index) => {
+                let entry = self.dictionary.entries.swap_remove(index);
+                self.position = MissingElement(entry.key);
+            }
+        };
     }
 
     fn predecessor(self) -> Option<Self> {
@@ -109,6 +115,15 @@ mod tests {
         assert_eq!(Some(200), dict.search(2).value().cloned());
         assert_eq!(Some(300), dict.search(3).value().cloned());
         assert_eq!(None, dict.search(4).value());
+    }
+
+    #[test]
+    fn it_performs_deletions() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        dict.search(1).set_value(100);
+        assert_eq!(Some(100), dict.search(1).value().cloned());
+        dict.search(1).delete();
+        assert_eq!(None, dict.search(1).value());
     }
 
     // fn tuple<K: Eq + Ord + Copy, V: Copy>(entry: &Entry<K, V>) -> (K, V) {

@@ -3,7 +3,7 @@ use std::marker::Sized;
 mod unsorted_array;
 
 pub trait Cursor<'d, K: Ord + 'd, V: 'd> where Self: Sized {
-    fn delete(&self);
+    fn delete(&mut self);
     fn predecessor(self) -> Option<Self>;
     fn successor(self) -> Option<Self>;
     fn key(&self) -> &K;
