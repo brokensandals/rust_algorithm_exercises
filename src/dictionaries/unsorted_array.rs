@@ -15,38 +15,38 @@ impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
 
-    fn cursor(&self, key: K, index: Option<usize>) -> InternalCursor<K, V> {
-        InternalCursor {
-            dict: self,
+    fn cursor<'d>(&'d self, key: &'d K, index: Option<usize>) -> UnsortedArrayDictionaryCursor<'d, K, V> {
+        UnsortedArrayDictionaryCursor {
+            dictionary: self,
             key: key,
             index: index,
         }
     }
 }
 
-impl<K: Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
-    type Cursor = InternalCursor<K, V>;
+impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K, V> {
+    type Cursor = UnsortedArrayDictionaryCursor<'d, K, V>;
 
-    fn search(&self, key: K) -> InternalCursor<K, V> {
+    fn search(&'d self, key: &'d K) -> Self::Cursor {
         self.cursor(key, None) // TODO
     }
 
-    fn max(&self) -> Option<InternalCursor<K, V>> {
+    fn max(&self) -> Option<Self::Cursor> {
         None // TODO
     }
 
-    fn min(&self) -> Option<InternalCursor<K, V>> {
+    fn min(&self) -> Option<Self::Cursor> {
         None // TODO
     }
 }
 
-struct InternalCursor<K: Ord, V> {
-    dict: &UnsortedArrayDictionary<K, V>,
-    key: &K,
+pub struct UnsortedArrayDictionaryCursor<'d, K: Ord + 'd, V: 'd> {
+    dictionary: &'d UnsortedArrayDictionary<K, V>,
+    key: &'d K, // TODO this lifetime is probably too broad
     index: Option<usize>,
 }
 
-impl<K: Ord, V> Cursor<K, V> for InternalCursor<K, V> {
+impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<'d, K, V> {
     fn delete(&self) {
         // TODO
     }
