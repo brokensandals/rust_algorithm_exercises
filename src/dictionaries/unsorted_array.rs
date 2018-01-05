@@ -6,61 +6,69 @@ struct Entry<K, V> {
     value: V,
 }
 
-pub struct UnsortedArrayDictionary<K: Eq + Ord, V> {
+pub struct UnsortedArrayDictionary<K: Ord, V> {
     entries: Vec<Entry<K, V>>,
 }
 
-impl<K: Eq + Ord, V> UnsortedArrayDictionary<K, V> {
+impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
     fn new() -> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
+
+    fn cursor(&self, key: K, index: Option<usize>) -> InternalCursor<K, V> {
+        InternalCursor {
+            dict: self,
+            key: key,
+            index: index,
+        }
+    }
 }
 
-impl<K: Eq + Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
-    type C = InternalCursor<K, V>;
+impl<K: Ord, V> Dictionary<K, V> for UnsortedArrayDictionary<K, V> {
+    type Cursor = InternalCursor<K, V>;
 
     fn search(&self, key: K) -> InternalCursor<K, V> {
-        InternalCursor {dict: self, index: None}
+        self.cursor(key, None) // TODO
     }
 
-    fn max(&self) -> InternalCursor<K, V> {
-        InternalCursor {dict: self, index: None}
+    fn max(&self) -> Option<InternalCursor<K, V>> {
+        None // TODO
     }
 
-    fn min(&self) -> InternalCursor<K, V> {
-        InternalCursor {dict: self, index: None}
+    fn min(&self) -> Option<InternalCursor<K, V>> {
+        None // TODO
     }
 }
 
-struct InternalCursor<K, V> {
-    dict: &UnsortedArrayDictionary,
+struct InternalCursor<K: Ord, V> {
+    dict: &UnsortedArrayDictionary<K, V>,
     key: &K,
     index: Option<usize>,
 }
 
-impl<K, V> Cursor<K, V> for InternalCursor<K, V> {
+impl<K: Ord, V> Cursor<K, V> for InternalCursor<K, V> {
     fn delete(&self) {
-        
+        // TODO
     }
 
-    fn predecessor(self) -> Self {
-        InternalCursor {dict: self.dict, index: None}
+    fn predecessor(self) -> Option<Self> {
+        None // TODO
     }
 
-    fn successor(self) -> Self {
-        InternalCursor {dict: self.dict, index: None}
+    fn successor(self) -> Option<Self> {
+        None // TODO
     }
 
     fn key(&self) -> &K {
-        self.key
+        self.key // TODO
     }
 
     fn value(&self) -> Option<&V> {
-        None
+        None // TODO
     }
 
     fn set_value(&self, value: V) {
-
+        // TODO
     }
 }
 
