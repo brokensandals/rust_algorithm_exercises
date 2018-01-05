@@ -15,7 +15,7 @@ impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
 
-    fn cursor<'d>(&'d self, key: &'d K, index: Option<usize>) -> UnsortedArrayDictionaryCursor<'d, K, V> {
+    fn cursor<'d>(&'d mut self, key: K, index: Option<usize>) -> UnsortedArrayDictionaryCursor<'d, K, V> {
         UnsortedArrayDictionaryCursor {
             dictionary: self,
             key: key,
@@ -27,8 +27,11 @@ impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
 impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K, V> {
     type Cursor = UnsortedArrayDictionaryCursor<'d, K, V>;
 
-    fn search(&'d self, key: &'d K) -> Self::Cursor {
-        self.cursor(key, None) // TODO
+    fn search(&'d mut self, key: K) -> Self::Cursor {
+        match self.entries.iter().position(|ref e| e.key == key) {
+            None => self.cursor(key, None),
+            Some(position) => self.cursor(key, Some(position)),
+        }
     }
 
     fn max(&self) -> Option<Self::Cursor> {
@@ -41,8 +44,8 @@ impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K,
 }
 
 pub struct UnsortedArrayDictionaryCursor<'d, K: Ord + 'd, V: 'd> {
-    dictionary: &'d UnsortedArrayDictionary<K, V>,
-    key: &'d K, // TODO this lifetime is probably too broad
+    dictionary: &'d mut UnsortedArrayDictionary<K, V>,
+    key: K,
     index: Option<usize>,
 }
 
@@ -59,16 +62,27 @@ impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<
         None // TODO
     }
 
-    fn key(&self) -> &K {
-        self.key // TODO
+    fn key(&self) -> K {
+        self.key
     }
 
     fn value(&self) -> Option<&V> {
-        None // TODO
+        match self.index {
+            None => None,
+            Some(index) => Some(&self.dictionary.entries[index].value),
+        }
     }
 
-    fn set_value(&self, value: V) {
-        // TODO
+    fn set_value(&mut self, value: V) {
+        match self.index {
+            None => {
+                self.dictionary.entries.push(Entry { key: self.key, value: value });
+                self.index = Some(self.dictionary.entries.len() - 1);
+            },
+            Some(index) => {
+                self.dictionary.entries[index].value = value;
+            },
+        };
     }
 }
 
