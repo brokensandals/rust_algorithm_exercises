@@ -125,7 +125,27 @@ impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<
     }
 
     fn successor(self) -> Option<Self> {
-        None // TODO
+        let mut index: Option<usize> = None;
+        {
+            let mut min: Option<&K> = None;
+            for i in 0..(self.dictionary.entries.len()) {
+                let key = &self.dictionary.entries[i].key;
+                if *key > *self.key() {
+                    if min.is_none() || *min.unwrap() > *key {
+                        index = Some(i);
+                        min = Some(key);
+                    }
+                }
+            }
+        }
+
+        match index {
+            None => None,
+            Some(index) => Some(UnsortedArrayDictionaryCursor {
+                dictionary: self.dictionary,
+                position: PresentElement(index),
+            }),
+        }
     }
 
     fn key(&self) -> &K {
@@ -210,27 +230,13 @@ mod tests {
         assert_eq!(Some(100), dict.search(2).predecessor().unwrap().value().cloned());
     }
 
-    // #[test]
-    // fn it_returns_predecessors() {
-    //     let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-    //     assert_eq!(None, dict.predecessor(2));
-    //     dict.insert(2, 200);
-    //     dict.insert(1, 100);
-    //     dict.insert(3, 300);
-    //     assert_eq!(None, dict.predecessor(1));
-    //     assert_eq!(Some(1), dict.predecessor(2));
-    //     assert_eq!(Some(2), dict.predecessor(3));
-    // }
-
-    // #[test]
-    // fn it_returns_successors() {
-    //     let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-    //     assert_eq!(None, dict.successor(2));
-    //     dict.insert(2, 200);
-    //     dict.insert(1, 100);
-    //     dict.insert(3, 300);
-    //     assert_eq!(Some(2), dict.successor(1));
-    //     assert_eq!(Some(3), dict.successor(2));
-    //     assert_eq!(None, dict.successor(3));
-    // }
+    #[test]
+    fn it_returns_successors() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        dict.search(2).set_value(200);
+        assert!(dict.search(2).successor().is_none());
+        dict.search(3).set_value(300);
+        assert!(dict.search(2).successor().is_some());
+        assert_eq!(Some(300), dict.search(2).successor().unwrap().value().cloned());
+    }
 }
