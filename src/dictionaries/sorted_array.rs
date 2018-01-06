@@ -1,6 +1,7 @@
 use ::dictionaries::Dictionary;
 use ::dictionaries::Cursor;
 use self::CursorState::*;
+use std::cmp::Ordering::*;
 use std::mem;
 
 struct Entry<K, V> {
@@ -22,17 +23,34 @@ impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for SortedArrayDictionary<K, V
     type Cursor = SortedArrayDictionaryCursor<'d, K, V>;
 
     fn search(&'d mut self, key: K) -> Self::Cursor {
-        match self.entries.binary_search_by(|ref e| e.key.cmp(&key)) {
-            Ok(index) => SortedArrayDictionaryCursor {
-                dictionary: self,
-                index: index,
-                state: PresentElement,
-            },
-            Err(index) => SortedArrayDictionaryCursor {
-                dictionary: self,
-                index: index,
-                state: MissingElement(key),
-            },
+        let mut left = 0;
+        let mut right = self.entries.len();
+        loop {
+            if left == right || right == 0 || left == self.entries.len() {
+                return SortedArrayDictionaryCursor {
+                    dictionary: self,
+                    index: left,
+                    state: MissingElement(key),
+                };
+            }
+
+            let cur = left + (right - left) / 2;
+
+            match key.cmp(&self.entries[cur].key) {
+                Equal => {
+                    return SortedArrayDictionaryCursor {
+                        dictionary: self,
+                        index: cur,
+                        state: PresentElement,
+                    };
+                },
+                Less => {
+                    right = cur;
+                },
+                Greater => {
+                    left = cur + 1;
+                }
+            };
         }
     }
 
