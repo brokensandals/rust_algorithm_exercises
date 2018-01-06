@@ -1,5 +1,9 @@
 use std::marker::Sized;
 
+#[cfg(test)]
+#[macro_use]
+pub mod test_util;
+
 pub mod unsorted_array;
 
 /// A dictionary for storing key-value pairs and searching/traversing by key.

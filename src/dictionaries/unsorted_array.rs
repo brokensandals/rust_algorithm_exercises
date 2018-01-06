@@ -179,64 +179,10 @@ impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<
 
 #[cfg(test)]
 mod tests {
+    extern crate test;
+
     use super::*;
+    use super::super::test_util::*;
 
-    #[test]
-    fn it_performs_insertions_and_searches() {
-        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        dict.search(2).set_value(200);
-        dict.search(1).set_value(100);
-        dict.search(3).set_value(300);
-        assert_eq!(Some(100), dict.search(1).value().cloned());
-        assert_eq!(Some(200), dict.search(2).value().cloned());
-        assert_eq!(Some(300), dict.search(3).value().cloned());
-        assert_eq!(None, dict.search(4).value());
-    }
-
-    #[test]
-    fn it_performs_deletions() {
-        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        dict.search(1).set_value(100);
-        assert_eq!(Some(100), dict.search(1).value().cloned());
-        dict.search(1).delete();
-        assert_eq!(None, dict.search(1).value());
-    }
-
-    #[test]
-    fn it_returns_min_and_max_elements() {
-        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        assert!(dict.min().is_none());
-        assert!(dict.max().is_none());
-        dict.search(2).set_value(200);
-        assert!(dict.min().is_some());
-        assert!(dict.max().is_some());
-        assert_eq!(Some(200), dict.min().unwrap().value().cloned());
-        assert_eq!(Some(200), dict.max().unwrap().value().cloned());
-        dict.search(1).set_value(100);
-        dict.search(3).set_value(300);
-        assert!(dict.min().is_some());
-        assert!(dict.max().is_some());
-        assert_eq!(Some(100), dict.min().unwrap().value().cloned());
-        assert_eq!(Some(300), dict.max().unwrap().value().cloned());
-    }
-
-    #[test]
-    fn it_returns_predecessors() {
-        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        dict.search(2).set_value(200);
-        assert!(dict.search(2).predecessor().is_none());
-        dict.search(1).set_value(100);
-        assert!(dict.search(2).predecessor().is_some());
-        assert_eq!(Some(100), dict.search(2).predecessor().unwrap().value().cloned());
-    }
-
-    #[test]
-    fn it_returns_successors() {
-        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-        dict.search(2).set_value(200);
-        assert!(dict.search(2).successor().is_none());
-        dict.search(3).set_value(300);
-        assert!(dict.search(2).successor().is_some());
-        assert_eq!(Some(300), dict.search(2).successor().unwrap().value().cloned());
-    }
+    dictionary_tests!(UnsortedArrayDictionary);
 }
