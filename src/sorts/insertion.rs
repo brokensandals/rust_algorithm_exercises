@@ -16,26 +16,8 @@ mod tests {
     extern crate test;
 
     use super::*;
-    use self::test::Bencher;
+    use self::test::{Bencher, black_box};
     use super::super::test_util::*;
 
-    #[test]
-    fn it_sorts_correctly() {
-        test_basic_properties(&insertion_sort);
-    }
-
-    #[bench]
-    fn perf_sorted(b: &mut Bencher) {
-        bench_already_sorted(b, &insertion_sort);
-    }
-
-    #[bench]
-    fn perf_reverse_sorted(b: &mut Bencher) {
-        bench_reverse_sorted(b, &insertion_sort);
-    }
-
-    #[bench]
-    fn perf_random(b: &mut Bencher) {
-        bench_sort_random(b, &insertion_sort);
-    }
+    sorting_tests!(insertion_sort);
 }
