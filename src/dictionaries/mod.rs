@@ -15,6 +15,6 @@ pub trait Dictionary<'d, K: Ord + 'd, V: 'd> {
     type Cursor: Cursor<'d, K, V>;
 
     fn search(&'d mut self, key: K) -> Self::Cursor;
-    fn max(&self) -> Option<Self::Cursor>;
-    fn min(&self) -> Option<Self::Cursor>;
+    fn max(&'d mut self) -> Option<Self::Cursor>;
+    fn min(&'d mut self) -> Option<Self::Cursor>;
 }

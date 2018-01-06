@@ -34,12 +34,48 @@ impl<'d, K: Ord + 'd, V: 'd> Dictionary<'d, K, V> for UnsortedArrayDictionary<K,
         }
     }
 
-    fn max(&self) -> Option<Self::Cursor> {
-        None // TODO
+    fn max(&'d mut self) -> Option<Self::Cursor> {
+        if self.entries.is_empty() {
+            return None;
+        }
+
+        let mut index = 0;
+        {
+            let mut max = &self.entries[0].key;
+            for i in 1..(self.entries.len()) {
+                if *max < self.entries[i].key {
+                    max = &self.entries[i].key;
+                    index = i;
+                }
+            }
+        }
+
+        Some(UnsortedArrayDictionaryCursor {
+            dictionary: self,
+            position: PresentElement(index),
+        })
     }
 
-    fn min(&self) -> Option<Self::Cursor> {
-        None // TODO
+    fn min(&'d mut self) -> Option<Self::Cursor> {
+        if self.entries.is_empty() {
+            return None;
+        }
+
+        let mut index = 0;
+        {
+            let mut min = &self.entries[0].key;
+            for i in 1..(self.entries.len()) {
+                if *min > self.entries[i].key {
+                    min = &self.entries[i].key;
+                    index = i;
+                }
+            }
+        }
+
+        Some(UnsortedArrayDictionaryCursor {
+            dictionary: self,
+            position: PresentElement(index),
+        })
     }
 }
 
@@ -126,44 +162,23 @@ mod tests {
         assert_eq!(None, dict.search(1).value());
     }
 
-    // fn tuple<K: Eq + Ord + Copy, V: Copy>(entry: &Entry<K, V>) -> (K, V) {
-    //     (entry.key, entry.value)
-    // }
-
-    // #[test]
-    // fn it_performs_insertions_and_searches() {
-    //     let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-    //     dict.insert(Entry { key: 2, value: 200 });
-    //     dict.insert(Entry { key: 1, value: 100 });
-    //     dict.insert(Entry { key: 3, value: 300 });
-    //     assert_eq!(Some((1, 100)), dict.search(1).map(tuple));
-    //     assert_eq!(Some((2, 200)), dict.search(2).map(tuple));
-    //     assert_eq!(Some((3, 300)), dict.search(3).map(tuple));
-    //     assert_eq!(None, dict.search(4).map(tuple));
-    // }
-
-    // #[test]
-    // fn it_performs_deletions() {
-    //     let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-    //     dict.insert(1, 100);
-    //     assert_eq!(Some(100), dict.search(1));
-    //     dict.delete(1);
-    //     assert_eq!(None, dict.search(1));
-    // }
-
-    // #[test]
-    // fn it_returns_min_and_max_elements() {
-    //     let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
-    //     assert_eq!(None, dict.min());
-    //     assert_eq!(None, dict.max());
-    //     dict.insert(2, 200);
-    //     assert_eq!(Some(2), dict.min());
-    //     assert_eq!(Some(2), dict.max());
-    //     dict.insert(1, 100);
-    //     dict.insert(3, 300);
-    //     assert_eq!(Some(1), dict.min());
-    //     assert_eq!(Some(3), dict.max());
-    // }
+    #[test]
+    fn it_returns_min_and_max_elements() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        assert!(dict.min().is_none());
+        assert!(dict.max().is_none());
+        dict.search(2).set_value(200);
+        assert!(dict.min().is_some());
+        assert!(dict.max().is_some());
+        assert_eq!(Some(200), dict.min().unwrap().value().cloned());
+        assert_eq!(Some(200), dict.max().unwrap().value().cloned());
+        dict.search(1).set_value(100);
+        dict.search(3).set_value(300);
+        assert!(dict.min().is_some());
+        assert!(dict.max().is_some());
+        assert_eq!(Some(100), dict.min().unwrap().value().cloned());
+        assert_eq!(Some(300), dict.max().unwrap().value().cloned());
+    }
 
     // #[test]
     // fn it_returns_predecessors() {
