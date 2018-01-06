@@ -13,7 +13,7 @@ pub struct UnsortedArrayDictionary<K: Ord, V> {
 }
 
 impl<K: Ord, V> UnsortedArrayDictionary<K, V> {
-    fn new() -> UnsortedArrayDictionary<K, V> {
+    pub fn new() -> UnsortedArrayDictionary<K, V> {
         UnsortedArrayDictionary { entries: Vec::new() }
     }
 }

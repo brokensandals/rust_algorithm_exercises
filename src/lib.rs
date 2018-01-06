@@ -1,4 +1,4 @@
 #![feature(test)]
 
-mod dictionaries;
-mod sorts;
+pub mod dictionaries;
+pub mod sorts;

@@ -1,5 +1,5 @@
-mod bubble;
-mod insertion;
+pub mod bubble;
+pub mod insertion;
 
 #[cfg(test)]
 mod test_util {
