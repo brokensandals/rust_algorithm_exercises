@@ -101,7 +101,27 @@ impl<'d, K: Ord + 'd, V: 'd> Cursor<'d, K, V> for UnsortedArrayDictionaryCursor<
     }
 
     fn predecessor(self) -> Option<Self> {
-        None // TODO
+        let mut index: Option<usize> = None;
+        {
+            let mut max: Option<&K> = None;
+            for i in 0..(self.dictionary.entries.len()) {
+                let key = &self.dictionary.entries[i].key;
+                if *key < *self.key() {
+                    if max.is_none() || *max.unwrap() < *key {
+                        index = Some(i);
+                        max = Some(key);
+                    }
+                }
+            }
+        }
+
+        match index {
+            None => None,
+            Some(index) => Some(UnsortedArrayDictionaryCursor {
+                dictionary: self.dictionary,
+                position: PresentElement(index),
+            }),
+        }
     }
 
     fn successor(self) -> Option<Self> {
@@ -178,6 +198,16 @@ mod tests {
         assert!(dict.max().is_some());
         assert_eq!(Some(100), dict.min().unwrap().value().cloned());
         assert_eq!(Some(300), dict.max().unwrap().value().cloned());
+    }
+
+    #[test]
+    fn it_returns_predecessors() {
+        let mut dict: UnsortedArrayDictionary<i64, i64> = UnsortedArrayDictionary::new();
+        dict.search(2).set_value(200);
+        assert!(dict.search(2).predecessor().is_none());
+        dict.search(1).set_value(100);
+        assert!(dict.search(2).predecessor().is_some());
+        assert_eq!(Some(100), dict.search(2).predecessor().unwrap().value().cloned());
     }
 
     // #[test]
