@@ -5,6 +5,7 @@ use std::marker::Sized;
 pub mod test_util;
 
 pub mod unsorted_array;
+pub mod sorted_array;
 
 /// A dictionary for storing key-value pairs and searching/traversing by key.
 /// The definition of the operations is influenced by the definition of
