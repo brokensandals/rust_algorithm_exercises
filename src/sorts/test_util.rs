@@ -49,8 +49,15 @@ macro_rules! sorting_tests {
         }
 
         #[test]
-        fn it_sorts() {
+        fn it_sorts_even_length_input() {
             let mut vec = rand_vec(1000);
+            $f(&mut vec);
+            assert_sorted(&vec);
+        }
+
+        #[test]
+        fn it_sorts_odd_length_input() {
+            let mut vec = rand_vec(1001);
             $f(&mut vec);
             assert_sorted(&vec);
         }
